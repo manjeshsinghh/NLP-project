@@ -4,7 +4,7 @@ A GPT-2 based product description generator with evaluation metrics (BLEU, ROUGE
 
 ## 🌐 Live App
 
-**Access the application:** [www.your-app-url.com](https://www.your-app-url.com)
+**Access the application:** [www.your-app-url.com](nlpmodel.streamlit.app)
 
 ## 🚀 Getting Started
 

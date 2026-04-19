@@ -1,6 +1,6 @@
 # NLP Project - Product Description Generator
 
-A GPT-2 based product description generator with evaluation metrics (BLEU, ROUGE) and iterative feedback loop.
+An instruction-tuned FLAN-T5 based product description generator with evaluation metrics (BLEU, ROUGE) and flexible dataset input.
 
 ## 🌐 Live App
 
@@ -32,10 +32,12 @@ nltk.download('punkt')
 
 **Features:**
 - Single product description generation
-- Batch processing with iterative feedback
+- Dataset product selection with search
+- Small batch description generation
+- CSV/ZIP upload support
+- Flexible column mapping for different ecommerce datasets
 - Real-time metrics visualization
 - Adjustable generation parameters
-- Manual feedback scoring
 
 
 
@@ -60,6 +62,9 @@ NLP-project/
 4. ✅ **Error Handling**: Added try-except blocks and validation
 5. ✅ **Input Handling**: Removed interactive input() for notebook compatibility
 6. ✅ **Dataset Loading**: Flexible path handling for different environments
+7. **Flexible Product Selection**: Dataset mode can use any matching product row, not only the first few rows
+8. **General Dataset Support**: Added column mapping so datasets with names like `title`, `description`, or `category` can be used
+9. **Model Quality**: Replaced base GPT-2 with instruction-tuned FLAN-T5 for more controlled product generation
 
 ### Key Features:
 - **SmoothingFunction**: Prevents BLEU score warnings when n-grams don't match
@@ -67,6 +72,8 @@ NLP-project/
 - **Text Extraction**: Separates prompt from generated text
 - **Comprehensive Metrics**: Returns BLEU, ROUGE-1, ROUGE-2, and ROUGE-L scores
 - **Error Handling**: Graceful error handling throughout
+- **Reusable Prompt Builder**: Creates stronger prompts from product name, details, category, and optional extra columns
+- **Quality Guardrails**: Falls back to product-focused copy if the model repeats labels, writes too little, or drifts to the wrong product
 
 ## Parameters
 

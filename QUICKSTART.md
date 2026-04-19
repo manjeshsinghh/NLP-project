@@ -27,17 +27,17 @@
 6. View the generated text and evaluation metrics
 
 ### Batch Processing
-1. Go to the "📊 Batch Processing" tab
-2. Click "Load Dataset" in the sidebar
-3. Select a product from the dropdown
-4. Click "Process Product"
-5. Rate each iteration using the slider (1-10)
-6. View metrics and combined rewards
+1. Go to the "Dataset products" tab
+2. Click "Load dataset" in the sidebar, or upload your own CSV/ZIP file
+3. Map the product name, product details, category, and reference columns
+4. Search for any product in the dataset
+5. Generate a description for the selected product, or generate a small batch
+6. Download the generated batch results as CSV
 
 ## Troubleshooting
 
 ### Model Loading Issues
-- First run will download GPT-2 model (~500MB)
+- First run will download the FLAN-T5 model
 - Ensure you have internet connection
 - Check available disk space
 

@@ -7,8 +7,9 @@ WORKDIR /app
 # Copy the requirements file into the container
 COPY requirements.txt .
 
-# Install the required dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install PyTorch CPU version first to save disk space, then install the rest
+RUN pip install torch --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code
 COPY . .

@@ -17,7 +17,7 @@ spec:
       containers:
       - name: nlp-app-container
         # Replace this with your Docker Hub image later (e.g., yourusername/nlp-app:latest)
-        image: nlp-app:latest 
+        image: manjeshh/nlp-app:latest 
         imagePullPolicy: IfNotPresent 
         ports:
         - containerPort: 8501

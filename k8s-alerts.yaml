@@ -1,0 +1,70 @@
+# 1. SECRET: Used to securely store sensitive Alertmanager configurations (like Webhook URLs or API keys)
+apiVersion: v1
+kind: Secret
+metadata:
+  # The Prometheus Operator looks for this specific secret name to configure Alertmanager
+  name: alertmanager-monitoring-kube-prometheus-alertmanager
+  namespace: monitoring
+type: Opaque
+stringData:
+  alertmanager.yaml: |
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['alertname']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'slack-notifications'
+    receivers:
+    - name: 'slack-notifications'
+      slack_configs:
+      # Replace this with a real Slack Webhook URL when you are ready!
+      - api_url: 'http://localhost/dummy-slack-webhook'
+        channel: '#server-alerts'
+        send_resolved: true
+
+---
+# 2. CONFIGMAP (PrometheusRule): Used to store the actual logic for triggering alerts
+# Note: In the Prometheus Operator stack we installed, a 'PrometheusRule' is essentially a specialized ConfigMap
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: custom-ec2-nlp-alerts
+  namespace: monitoring
+  labels:
+    # This label tells Prometheus to automatically load these rules
+    release: monitoring 
+spec:
+  groups:
+  - name: ec2-and-nlp-alerts
+    rules:
+    # Alert 1: EC2 High CPU Usage
+    - alert: EC2HighCpuUsage
+      expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage on EC2 instance"
+        description: "CPU usage has been above 85% for more than 5 minutes."
+
+    # Alert 2: NLP Container Memory Warning
+    - alert: NlpContainerHighMemory
+      expr: sum(container_memory_usage_bytes{pod=~"nlp-app-deployment.*"}) / 1024 / 1024 > 500
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "NLP App using too much memory"
+        description: "The NLP Streamlit container is using more than 500MB of RAM."
+
+    # Alert 3: NLP Pod Crash Loop
+    - alert: NlpPodCrashing
+      expr: rate(kube_pod_container_status_restarts_total{pod=~"nlp-app-deployment.*"}[15m]) > 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "NLP Pod is CrashLooping"
+        description: "The NLP container is continually crashing and restarting."

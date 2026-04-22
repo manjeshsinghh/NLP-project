@@ -20,7 +20,10 @@ spec:
         image: manjeshh/nlp-app:latest 
         imagePullPolicy: IfNotPresent 
         ports:
-        - containerPort: 8501
+        - name: http
+          containerPort: 8501
+        - name: metrics
+          containerPort: 8000
         resources:
           requests:
             cpu: 250m
@@ -38,9 +41,14 @@ spec:
   selector:
     app: nlp-app
   ports:
-    - protocol: TCP
-      port: 8501         # The port external users will hit
-      targetPort: 8501 # The port your app is listening on
+    - name: http
+      protocol: TCP
+      port: 8501
+      targetPort: 8501
+    - name: metrics
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
 
 ---
 apiVersion: autoscaling/v2

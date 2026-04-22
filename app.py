@@ -13,6 +13,15 @@ from nlp_model import (
     row_to_prompt,
     suggest_columns,
 )
+from prometheus_client import Counter, start_http_server
+
+# Start the metrics server on port 8000
+try:
+    start_http_server(8000)
+except Exception:
+    pass
+
+GENERATION_REQUESTS = Counter('nlp_generation_requests_total', 'Total number of generation requests')
 
 
 st.set_page_config(
@@ -158,6 +167,7 @@ def main():
                 st.error("Please enter at least a product name and product details.")
             else:
                 with st.spinner("Generating description..."):
+                    GENERATION_REQUESTS.inc()
                     generated_text = generator.generate_product_description(
                         product_name=product_name,
                         product_details=product_description,
@@ -273,6 +283,7 @@ def main():
                             extra_cols=extra_cols,
                         )
                         with st.spinner("Generating description..."):
+                            GENERATION_REQUESTS.inc()
                             generated_text = generator.generate_text(
                                 prompt,
                                 max_new_tokens=max_tokens,
@@ -306,6 +317,7 @@ def main():
                                 category_col=category_col,
                                 extra_cols=extra_cols,
                             )
+                            GENERATION_REQUESTS.inc()
                             generated_text = generator.generate_text(
                                 prompt,
                                 max_new_tokens=max_tokens,

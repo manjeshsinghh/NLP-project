@@ -1,0 +1,64 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nlp-app-monitor
+  namespace: monitoring
+  labels:
+    release: monitoring # Tells Prometheus Operator to pick this up
+spec:
+  selector:
+    matchLabels:
+      app: nlp-app
+  namespaceSelector:
+    matchNames:
+      - default
+  endpoints:
+  - port: metrics # This matches the port name we defined in k8s.yaml
+    interval: 15s
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nlp-grafana-dashboard
+  namespace: monitoring
+  labels:
+    # This label tells Grafana's sidecar to automatically import this dashboard!
+    grafana_dashboard: "1"
+data:
+  nlp-dashboard.json: |-
+    {
+      "title": "NLP Application Metrics",
+      "tags": ["nlp", "streamlit"],
+      "timezone": "browser",
+      "panels": [
+        {
+          "title": "Total Generation Requests",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum(nlp_generation_requests_total)",
+              "legendFormat": "Generations"
+            }
+          ],
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto"
+          }
+        },
+        {
+          "title": "Generation Requests Per Minute",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum(rate(nlp_generation_requests_total[5m])) * 60",
+              "legendFormat": "Req/Min"
+            }
+          ]
+        }
+      ],
+      "schemaVersion": 38
+    }

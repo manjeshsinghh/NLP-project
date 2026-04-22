@@ -21,6 +21,13 @@ spec:
         imagePullPolicy: IfNotPresent 
         ports:
         - containerPort: 8501
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -34,3 +41,23 @@ spec:
     - protocol: TCP
       port: 8501         # The port external users will hit
       targetPort: 8501 # The port your app is listening on
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nlp-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nlp-app-deployment
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75

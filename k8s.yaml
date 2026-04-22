@@ -32,5 +32,5 @@ spec:
     app: nlp-app
   ports:
     - protocol: TCP
-      port: 80         # The port external users will hit
+      port: 8501         # The port external users will hit
       targetPort: 8501 # The port your app is listening on

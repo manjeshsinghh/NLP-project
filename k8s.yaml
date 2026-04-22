@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlp-app-deployment
+  labels:
+    app: nlp-app
+spec:
+  replicas: 2 # Number of identical pods running your app
+  selector:
+    matchLabels:
+      app: nlp-app
+  template:
+    metadata:
+      labels:
+        app: nlp-app
+    spec:
+      containers:
+      - name: nlp-app-container
+        # Replace this with your Docker Hub image later (e.g., yourusername/nlp-app:latest)
+        image: nlp-app:latest 
+        imagePullPolicy: IfNotPresent 
+        ports:
+        - containerPort: 8501
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nlp-app-service
+spec:
+  type: LoadBalancer # Exposes the service to external traffic
+  selector:
+    app: nlp-app
+  ports:
+    - protocol: TCP
+      port: 80         # The port external users will hit
+      targetPort: 8501 # The port your app is listening on

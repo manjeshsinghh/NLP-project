@@ -39,7 +39,16 @@ nltk.download('punkt')
 - Real-time metrics visualization
 - Adjustable generation parameters
 
+## 🏗️ DevOps & Infrastructure
 
+This project has been upgraded from a simple Python script to a fully production-ready, containerized application hosted on AWS EC2:
+
+- **Docker Containerization**: Optimized `Dockerfile` using `python:3.10-slim` with CPU-only PyTorch to minimize image size and save disk space.
+- **Kubernetes (k3s)**: Lightweight Kubernetes cluster managing the application lifecycle.
+- **Automated CI/CD**: GitHub Actions pipeline (`.github/workflows/ci.yml`) automatically checks syntax and installs dependencies on every push.
+- **Horizontal Pod Autoscaling (HPA)**: Kubernetes automatically scales the Streamlit pods (between 2 and 8 replicas) based on CPU usage.
+- **Prometheus & Grafana Monitoring**: Full observability stack tracking EC2 metrics, pod health, and custom Streamlit metrics (like `nlp_generation_requests_total`).
+- **Automated Alerts**: Custom Alertmanager setup using Kubernetes `Secrets` and `PrometheusRule` ConfigMaps to send Slack notifications for high CPU, memory leaks, or CrashLooping pods.
 
 ## Project Structure
 

@@ -39,16 +39,37 @@ nltk.download('punkt')
 - Real-time metrics visualization
 - Adjustable generation parameters
 
-## 🏗️ DevOps & Infrastructure
+## 🏗️ DevOps & Infrastructure Architecture
 
-This project has been upgraded from a simple Python script to a fully production-ready, containerized application hosted on AWS EC2:
+This project is a fully production-ready, containerized application hosted on AWS EC2, featuring a comprehensive DevOps lifecycle:
 
-- **Docker Containerization**: Optimized `Dockerfile` using `python:3.10-slim` with CPU-only PyTorch to minimize image size and save disk space.
-- **Kubernetes (k3s)**: Lightweight Kubernetes cluster managing the application lifecycle.
-- **Automated CI/CD**: GitHub Actions pipeline (`.github/workflows/ci.yml`) automatically checks syntax and installs dependencies on every push.
-- **Horizontal Pod Autoscaling (HPA)**: Kubernetes automatically scales the Streamlit pods (between 2 and 8 replicas) based on CPU usage.
-- **Prometheus & Grafana Monitoring**: Full observability stack tracking EC2 metrics, pod health, and custom Streamlit metrics (like `nlp_generation_requests_total`).
-- **Automated Alerts**: Custom Alertmanager setup using Kubernetes `Secrets` and `PrometheusRule` ConfigMaps to send Slack notifications for high CPU, memory leaks, or CrashLooping pods.
+### 1. Continuous Integration (CI) Pipeline
+The project utilizes **GitHub Actions** (`.github/workflows/ci.yml`) to ensure code quality and prevent broken code from reaching production. The pipeline automatically triggers on every `push` and `pull_request` to the `main` branch, performing:
+- **Environment Provisioning:** Spins up an Ubuntu runner and provisions Python 3.10.
+- **Dependency Caching:** Intelligently caches `pip` packages to dramatically speed up build times.
+- **Dependency Installation:** Resolves and installs all requirements from `requirements.txt`.
+- **Syntax Validation:** Uses `flake8` to automatically catch syntax errors, undefined names, and critical Python formatting issues.
+
+### 2. Containerization & Registry
+- **Docker:** The application is containerized using a highly optimized `Dockerfile` based on `python:3.10-slim`.
+- **Resource Optimization:** We explicitly install the `CPU-only` version of PyTorch and utilize a `.dockerignore` file to prevent caching heavy dataset files, resulting in an incredibly fast and lightweight image that will not exhaust EC2 disk space.
+
+### 3. Kubernetes (k3s) Orchestration
+The application is deployed on an AWS EC2 instance using **k3s**, a highly efficient, CNCF-certified Kubernetes distribution with embedded `etcd`:
+- **Redundancy:** The `nlp-app-deployment` maintains a baseline of multiple replicas ensuring high availability.
+- **Horizontal Pod Autoscaling (HPA):** Dynamically scales the application out (up to 8 replicas) or in (down to 2 replicas) depending on real-time CPU utilization (target: 75%).
+- **Load Balancing:** Exposes the Streamlit application seamlessly to the public internet via Kubernetes `NodePort` and `LoadBalancer` services.
+
+### 4. Observability & Monitoring
+A complete **Prometheus & Grafana** stack is deployed within the cluster to monitor system health:
+- **Custom Application Metrics:** `app.py` is instrumented with the `prometheus_client` to expose a live `/metrics` endpoint. A custom `ServiceMonitor` specifically scrapes `nlp_generation_requests_total` to track exact NLP usage in Grafana.
+- **Infrastructure Metrics:** Monitors EC2 CPU, Memory, Disk Pressure, and network I/O.
+
+### 5. Automated Alerting
+Using **Alertmanager**, custom Kubernetes `Secrets`, and a specialized `PrometheusRule` ConfigMap, the cluster actively analyzes metrics and triggers Slack notifications for:
+- `EC2HighCpuUsage`: Server CPU exceeds 85% for 5 minutes.
+- `NlpContainerHighMemory`: Any Streamlit pod exceeds 500MB of RAM.
+- `NlpPodCrashing`: Immediate alert if the Streamlit container enters a `CrashLoopBackOff` state.
 
 ## Project Structure
 

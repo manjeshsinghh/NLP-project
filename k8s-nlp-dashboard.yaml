@@ -29,33 +29,61 @@ data:
   nlp-dashboard.json: |-
     {
       "title": "NLP Application Metrics",
-      "tags": ["nlp", "streamlit"],
+      "tags": ["nlp", "streamlit", "kubernetes"],
       "timezone": "browser",
       "panels": [
         {
           "title": "Total Generation Requests",
           "type": "stat",
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
           "targets": [
             {
               "expr": "sum(nlp_generation_requests_total)",
               "legendFormat": "Generations"
             }
-          ],
-          "options": {
-            "colorMode": "value",
-            "graphMode": "area",
-            "justifyMode": "auto"
-          }
+          ]
         },
         {
-          "title": "Generation Requests Per Minute",
+          "title": "Active NLP Pods (HPA)",
+          "type": "stat",
+          "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
+          "targets": [
+            {
+              "expr": "count(kube_pod_status_phase{pod=~\"nlp-app-deployment.*\", phase=\"Running\"})",
+              "legendFormat": "Running Pods"
+            }
+          ]
+        },
+        {
+          "title": "Generation Requests / Min",
           "type": "timeseries",
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
           "targets": [
             {
               "expr": "sum(rate(nlp_generation_requests_total[5m])) * 60",
               "legendFormat": "Req/Min"
+            }
+          ]
+        },
+        {
+          "title": "NLP Pods - CPU Usage (Cores)",
+          "type": "timeseries",
+          "gridPos": { "h": 9, "w": 12, "x": 0, "y": 6 },
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{pod=~\"nlp-app-deployment.*\", container!=\"\"}[5m])) by (pod)",
+              "legendFormat": "{{pod}}"
+            }
+          ]
+        },
+        {
+          "title": "NLP Pods - Memory Usage (MB)",
+          "type": "timeseries",
+          "gridPos": { "h": 9, "w": 12, "x": 12, "y": 6 },
+          "targets": [
+            {
+              "expr": "sum(container_memory_working_set_bytes{pod=~\"nlp-app-deployment.*\", container!=\"\"}) by (pod) / 1024 / 1024",
+              "legendFormat": "{{pod}}"
             }
           ]
         }

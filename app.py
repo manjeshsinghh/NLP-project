@@ -14,15 +14,18 @@ from nlp_model import (
     suggest_columns,
 )
 from prometheus_client import Counter, start_http_server
+import streamlit as st
 
-# Start the metrics server on port 8000
-try:
-    start_http_server(8000)
-except Exception:
-    pass
+@st.cache_resource
+def init_metrics():
+    # Start the metrics server on port 8000
+    try:
+        start_http_server(8000)
+    except Exception:
+        pass
+    return Counter('nlp_generation_requests_total', 'Total number of generation requests')
 
-GENERATION_REQUESTS = Counter('nlp_generation_requests_total', 'Total number of generation requests')
-
+GENERATION_REQUESTS = init_metrics()
 
 st.set_page_config(
     page_title="Product Description Generator",
